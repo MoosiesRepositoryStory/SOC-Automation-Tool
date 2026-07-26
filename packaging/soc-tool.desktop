@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=SOC Automation Tool
+Comment=Desktop SOC triage and automation tool
+Exec=/opt/soc-tool/venv/bin/python -m app.main
+Icon=soc-tool
+Terminal=false
+Categories=System;Security;
+StartupWMClass=soc-tool
+StartupNotify=true

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>SOC Automation Tool</title>
+
+  <g transform="translate(128,128) rotate(40)" stroke="#2E3134" stroke-width="6" stroke-linejoin="round">
+    <polygon points="-17,-80 17,-80 17,140 0,185 -17,140" fill="#C7CCD1"/>
+    <rect x="-46" y="-94" width="92" height="16" rx="4" fill="#8B9096"/>
+    <rect x="-11" y="-150" width="22" height="58" rx="5" fill="#8B9096"/>
+    <circle cx="0" cy="-166" r="17" fill="#8B9096"/>
+  </g>
+  <g transform="translate(128,128) rotate(-40)" stroke="#2E3134" stroke-width="6" stroke-linejoin="round">
+    <polygon points="-17,-80 17,-80 17,140 0,185 -17,140" fill="#C7CCD1"/>
+    <rect x="-46" y="-94" width="92" height="16" rx="4" fill="#8B9096"/>
+    <rect x="-11" y="-150" width="22" height="58" rx="5" fill="#8B9096"/>
+    <circle cx="0" cy="-166" r="17" fill="#8B9096"/>
+  </g>
+
+  <path d="M128,46
+           C90,46 55,58 40,70
+           L40,128
+           C40,185 78,222 128,238
+           C178,222 216,185 216,128
+           L216,70
+           C201,58 166,46 128,46
+           Z"
+        fill="#1E4620" stroke="#C7CCD1" stroke-width="10" stroke-linejoin="round"/>
+</svg>

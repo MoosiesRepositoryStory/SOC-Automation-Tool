@@ -6,5 +6,9 @@ Exec=/opt/soc-tool/venv/bin/python -m app.main
 Icon=soc-tool
 Terminal=false
 Categories=System;Security;
-StartupWMClass=soc-tool
+# Matches app.main's applicationName ("SOC Automation Tool"), which is
+# WM_CLASS's class field on X11 for this Qt version -- verified with
+# xprop on a real window, not assumed. Not "soc-tool": setDesktopFileName
+# does not control X11 WM_CLASS here despite Qt's docs suggesting it does.
+StartupWMClass=SOC Automation Tool
 StartupNotify=true

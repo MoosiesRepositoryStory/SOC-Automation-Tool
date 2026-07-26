@@ -5,6 +5,7 @@ defaulted; unrecognized fields are ignored (structured logs vary widely).
 
 import json
 
+from core.detection.categories import parse_category
 from core.detection.parsers.common import parse_severity, parse_timestamp
 from data.models import Incident
 
@@ -16,7 +17,7 @@ def _object_to_incident(obj: dict) -> Incident:
         scan_id=None,
         first_seen=timestamp,
         last_seen=timestamp,
-        category=obj.get("category", "json"),
+        category=parse_category(obj.get("category")),
         severity=parse_severity(obj.get("severity") or obj.get("level")),
         source=obj.get("source") or obj.get("host", "unknown"),
         src_ip=obj.get("src_ip"),

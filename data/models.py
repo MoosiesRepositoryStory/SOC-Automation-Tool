@@ -30,6 +30,39 @@ class IncidentStatus(Enum):
         }[self]
 
 
+class IncidentCategory(Enum):
+    """Shared taxonomy — the single vocabulary every parser (core/detection/
+    parsers/) and core/mitre.py's technique mapping key off of. Lives here,
+    not in core/detection/categories.py, because Incident.category (below)
+    needs the type and data/ must never import from core/ (CLAUDE.md,
+    Layering) — core/detection/categories.py holds the *inference* logic
+    and imports this enum from here, which is the allowed direction.
+
+    Grounded in real ATT&CK tactic groupings, not arbitrary names — see
+    core/mitre.py for exactly which verified technique IDs back each one.
+    """
+
+    BRUTE_FORCE = "brute_force"
+    PORT_SCAN = "port_scan"
+    MALWARE_EXECUTION = "malware_execution"
+    DENIAL_OF_SERVICE = "dos"
+    PRIVILEGE_ESCALATION = "privilege_escalation"
+    DISCOVERY = "discovery"
+    UNCATEGORIZED = "uncategorized"
+
+    @property
+    def display_name(self) -> str:
+        return {
+            IncidentCategory.BRUTE_FORCE: "Brute Force",
+            IncidentCategory.PORT_SCAN: "Port Scan",
+            IncidentCategory.MALWARE_EXECUTION: "Malware Execution",
+            IncidentCategory.DENIAL_OF_SERVICE: "Denial of Service",
+            IncidentCategory.PRIVILEGE_ESCALATION: "Privilege Escalation",
+            IncidentCategory.DISCOVERY: "Discovery",
+            IncidentCategory.UNCATEGORIZED: "Uncategorized",
+        }[self]
+
+
 @dataclass(frozen=True)
 class Scan:
     id: int | None
@@ -46,7 +79,7 @@ class Incident:
     scan_id: int | None
     first_seen: datetime
     last_seen: datetime
-    category: str
+    category: IncidentCategory
     severity: Severity
     source: str
     src_ip: str | None

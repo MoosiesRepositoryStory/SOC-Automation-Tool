@@ -10,7 +10,7 @@ import sqlite3
 from dataclasses import replace
 from datetime import datetime
 
-from data.models import Incident, IncidentRow, IncidentStatus, Scan, Severity
+from data.models import Incident, IncidentCategory, IncidentRow, IncidentStatus, Scan, Severity
 
 
 class IncidentRepository:
@@ -41,7 +41,7 @@ class IncidentRepository:
                 incident.scan_id,
                 incident.first_seen.isoformat(),
                 incident.last_seen.isoformat(),
-                incident.category,
+                incident.category.value,
                 incident.severity.value,
                 incident.source,
                 incident.src_ip,
@@ -124,7 +124,7 @@ class IncidentRepository:
                 scan_id=row["scan_id"],
                 first_seen=datetime.fromisoformat(row["first_seen"]),
                 last_seen=datetime.fromisoformat(row["last_seen"]),
-                category=row["category"],
+                category=IncidentCategory(row["category"]),
                 severity=Severity(row["severity"]),
                 source=row["source"],
                 src_ip=row["src_ip"],

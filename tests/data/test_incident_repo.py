@@ -11,7 +11,7 @@ from datetime import datetime
 import pytest
 
 from data.db import connect
-from data.models import Incident, IncidentStatus, Scan, Severity
+from data.models import Incident, IncidentCategory, IncidentStatus, Scan, Severity
 from data.repositories.incident_repo import IncidentRepository
 
 
@@ -27,7 +27,7 @@ def _sample_incident(**overrides) -> Incident:
         scan_id=None,
         first_seen=datetime(2026, 7, 26, 12, 0, 0),
         last_seen=datetime(2026, 7, 26, 12, 0, 0),
-        category="test",
+        category=IncidentCategory.BRUTE_FORCE,
         severity=Severity.HIGH,
         source="host01",
         src_ip="10.0.0.1",

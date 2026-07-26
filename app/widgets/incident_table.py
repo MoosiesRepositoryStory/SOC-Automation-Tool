@@ -35,7 +35,7 @@ from data.models import IncidentRow, IncidentStatus, Severity
 COLUMNS: list[tuple[str, str, str]] = [
     ("id", "ID", "Internal database identifier. Not stable across a full DB rebuild."),
     ("first_seen", "First Seen", "Timestamp the underlying log event was first recorded."),
-    ("category", "Category", "Detection category assigned by the parser that ingested this incident."),
+    ("category", "Category", "Semantic ATT&CK-grounded category (Brute Force, Port Scan, ...), inferred from the log content — not the log's source format. See core/mitre.py for the technique mapping built on this."),
     ("severity", "Severity", "Functional severity — critical/high/medium/low. Not brand-colored; see app/theme/tokens.py Severity."),
     ("source", "Source", "Host or system that generated the underlying log line."),
     ("src_ip", "Src IP", "Source IP extracted from the log line, if present."),
@@ -90,7 +90,7 @@ class IncidentTableModel(QAbstractTableModel):
         return {
             "id": str(incident.id),
             "first_seen": incident.first_seen.strftime("%Y-%m-%d %H:%M:%S"),
-            "category": incident.category,
+            "category": incident.category.display_name,
             "severity": incident.severity.value.capitalize(),
             "source": incident.source,
             "src_ip": incident.src_ip or "",

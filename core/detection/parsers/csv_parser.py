@@ -4,6 +4,7 @@ are case-insensitive and optional — anything missing is defaulted."""
 import csv
 import io
 
+from core.detection.categories import parse_category
 from core.detection.parsers.common import parse_severity, parse_timestamp
 from data.models import Incident
 
@@ -21,7 +22,7 @@ def parse_csv(text: str) -> list[Incident]:
                 scan_id=None,
                 first_seen=timestamp,
                 last_seen=timestamp,
-                category=normalized.get("category") or "csv",
+                category=parse_category(normalized.get("category")),
                 severity=parse_severity(normalized.get("severity") or normalized.get("level")),
                 source=normalized.get("source") or normalized.get("host") or "unknown",
                 src_ip=normalized.get("src_ip") or None,

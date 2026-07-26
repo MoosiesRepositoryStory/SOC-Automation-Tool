@@ -24,7 +24,7 @@ from app.settings_service import SettingsService
 from app.widgets.incident_table import COLUMNS, IncidentTablePage
 from core.detection.parsers import parse_csv, parse_json, parse_syslog
 from data.db import connect
-from data.models import Incident, IncidentStatus
+from data.models import Incident, IncidentCategory, IncidentStatus
 from data.repositories.incident_repo import IncidentRepository
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -38,15 +38,15 @@ Jul 26 09:15:00 web01 sshd: Failed password for root from 203.0.113.9
 
 JSON_SAMPLE = (
     '{"timestamp": "2026-07-26T10:00:00", "severity": "high", "source": "fw01", '
-    '"src_ip": "10.0.0.9", "message": "port scan detected"}\n'
+    '"src_ip": "10.0.0.9", "category": "port_scan", "message": "port scan detected"}\n'
     '{"timestamp": "2026-07-26T10:05:00", "severity": "low", "source": "fw01", '
     '"message": "heartbeat ok"}\n'
 )
 
 CSV_SAMPLE = (
-    "timestamp,severity,source,src_ip,message\n"
-    "2026-07-26 11:00:00,critical,edge01,192.168.1.5,malware signature match\n"
-    "2026-07-26 11:05:00,medium,edge01,,unusual outbound volume\n"
+    "timestamp,severity,source,src_ip,category,message\n"
+    "2026-07-26 11:00:00,critical,edge01,192.168.1.5,malware_execution,malware signature match\n"
+    "2026-07-26 11:05:00,medium,edge01,,,unusual outbound volume\n"
 )
 
 
@@ -88,9 +88,20 @@ def page(repo, settings, qapp):
 
 def test_seed_produced_incidents_from_all_three_parsers(repo):
     rows = repo.list_incident_rows()
+    assert len(rows) == 8  # 4 syslog + 2 json + 2 csv
+
+    # Category is now semantic (Task 5b), not the parser's format name —
+    # 2 syslog lines infer BRUTE_FORCE from "Failed password"; the JSON and
+    # CSV samples each explicitly name a category for one row and omit it
+    # for the other (UNCATEGORIZED), and the 2 remaining syslog lines have
+    # no category keyword at all (also UNCATEGORIZED).
     categories = {row.incident.category for row in rows}
-    assert categories == {"syslog", "json", "csv"}
-    assert len(rows) == 8  # 3 syslog-parseable + 2 json + 2 csv... see note below
+    assert categories == {
+        IncidentCategory.BRUTE_FORCE,
+        IncidentCategory.PORT_SCAN,
+        IncidentCategory.MALWARE_EXECUTION,
+        IncidentCategory.UNCATEGORIZED,
+    }
 
 
 # -- column filtering + search, composable ----------------------------------
@@ -127,10 +138,13 @@ def test_fuzzy_search_suggests_close_match_on_zero_results(page, qapp):
     page.show()  # isVisible() reflects composed ancestor visibility too
     qapp.processEvents()
 
-    page._search_box.setText("sylog")  # typo for "syslog"
+    # "syslog" no longer appears anywhere in visible data now that Category
+    # is semantic (Task 5b) rather than the parser's format name — use a
+    # word that's still genuinely present, from a description field.
+    page._search_box.setText("passwrd")  # typo for "password"
     qapp.processEvents()
     assert page._suggestion_label.isVisible()
-    assert "syslog" in page._suggestion_label.text().lower()
+    assert "password" in page._suggestion_label.text().lower()
 
 
 # -- sorting ------------------------------------------------------------

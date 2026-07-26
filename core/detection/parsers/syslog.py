@@ -7,7 +7,8 @@ streams routinely carry multi-line continuations and malformed entries.
 import re
 from datetime import datetime
 
-from core.detection.parsers.common import infer_severity_from_text
+from core.detection.categories import infer_category_from_text
+from core.detection.parsers.common import extract_ips, infer_severity_from_text
 from data.models import Incident
 
 _LINE_RE = re.compile(
@@ -36,17 +37,18 @@ def parse_syslog(text: str, *, year: int | None = None) -> list[Incident]:
             continue
 
         message = match["message"]
+        src_ip, dst_ip = extract_ips(message)
         incidents.append(
             Incident(
                 id=None,
                 scan_id=None,
                 first_seen=timestamp,
                 last_seen=timestamp,
-                category="syslog",
+                category=infer_category_from_text(message),
                 severity=infer_severity_from_text(message),
                 source=match["host"],
-                src_ip=None,
-                dst_ip=None,
+                src_ip=src_ip,
+                dst_ip=dst_ip,
                 description=message,
                 raw=line,
             )

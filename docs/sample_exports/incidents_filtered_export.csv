@@ -1,0 +1,4 @@
+ID,First Seen,Category,Severity,Source,Src IP,Dst IP,Description,Status,Note
+4,2026-07-26 09:15:00,syslog,High,web01,,,Failed password for root from 203.0.113.9,New,
+2,2026-07-26 09:05:00,syslog,Critical,web01,,,critical hardware fault on disk sda,New,
+1,2026-07-26 09:00:00,syslog,High,web01,,,Failed password for admin from 203.0.113.5,New,

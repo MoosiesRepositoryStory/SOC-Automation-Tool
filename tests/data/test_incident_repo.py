@@ -6,7 +6,7 @@ positive-rate-over-time is impossible from a mutable column), so it's
 tested directly here, not just trusted.
 """
 
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 import pytest
 
@@ -90,3 +90,42 @@ def test_insert_scan_links_to_incidents(repo):
 
     rows = repo.list_incident_rows()
     assert rows[0].incident.scan_id == scan.id
+
+
+def test_count_by_day_and_severity_groups_correctly(repo):
+    """for app/widgets/trend_chart.py (Task 5c) -- grouping happens in
+    SQL, so this is checked directly rather than trusted."""
+    now = datetime.now()
+    today = now.replace(hour=12, minute=0, second=0, microsecond=0)
+    yesterday = today - timedelta(days=1)
+    two_days_ago = today - timedelta(days=2)
+
+    repo.insert_incident(_sample_incident(first_seen=today, severity=Severity.CRITICAL))
+    repo.insert_incident(_sample_incident(first_seen=today, severity=Severity.HIGH))
+    repo.insert_incident(_sample_incident(first_seen=yesterday, severity=Severity.HIGH))
+    repo.insert_incident(_sample_incident(first_seen=yesterday, severity=Severity.HIGH))
+    repo.insert_incident(_sample_incident(first_seen=two_days_ago, severity=Severity.LOW))
+
+    counts = repo.count_by_day_and_severity(now - timedelta(days=7))
+
+    assert counts[today.date()] == {Severity.CRITICAL: 1, Severity.HIGH: 1}
+    assert counts[yesterday.date()] == {Severity.HIGH: 2}
+    assert counts[two_days_ago.date()] == {Severity.LOW: 1}
+
+
+def test_count_by_day_and_severity_excludes_incidents_before_since(repo):
+    now = datetime.now()
+    old = now - timedelta(days=30)
+    recent = now
+
+    repo.insert_incident(_sample_incident(first_seen=old, severity=Severity.CRITICAL))
+    repo.insert_incident(_sample_incident(first_seen=recent, severity=Severity.LOW))
+
+    counts = repo.count_by_day_and_severity(now - timedelta(days=7))
+
+    assert old.date() not in counts
+    assert counts[recent.date()] == {Severity.LOW: 1}
+
+
+def test_count_by_day_and_severity_empty_db_returns_empty_dict(repo):
+    assert repo.count_by_day_and_severity(datetime.now() - timedelta(days=7)) == {}

@@ -8,7 +8,7 @@ is always the latest row for that incident_id, derived on read.
 
 import sqlite3
 from dataclasses import replace
-from datetime import datetime
+from datetime import date, datetime
 
 from data.models import Incident, IncidentCategory, IncidentRow, IncidentStatus, Scan, Severity
 
@@ -135,4 +135,26 @@ class IncidentRepository:
             status = IncidentStatus(row["current_status"]) if row["current_status"] else IncidentStatus.NEW
             note = row["current_note"] or ""
             result.append(IncidentRow(incident=incident, status=status, note=note))
+        return result
+
+    def count_by_day_and_severity(self, since: datetime) -> dict[date, dict[Severity, int]]:
+        """Grouped in SQL, not pulled row-by-row and aggregated in Python —
+        for app/widgets/trend_chart.py (Task 5c). Days/severities with zero
+        incidents simply have no entry; the caller fills gaps as needed."""
+        rows = self._conn.execute(
+            """
+            SELECT date(first_seen) AS day, severity, COUNT(*) AS cnt
+            FROM incidents
+            WHERE first_seen >= ?
+            GROUP BY day, severity
+            ORDER BY day
+            """,
+            (since.isoformat(),),
+        ).fetchall()
+
+        result: dict[date, dict[Severity, int]] = {}
+        for row in rows:
+            day = date.fromisoformat(row["day"])
+            severity = Severity(row["severity"])
+            result.setdefault(day, {})[severity] = row["cnt"]
         return result

@@ -1,32 +1,13 @@
-"""Entry point.
-
-Minimal scaffold for Task 3 (logo application points). The real dashboard
-and swappable nav rail are built in Task 4 — this window is a placeholder
-just sufficient to demonstrate setWindowIcon and the window-fade
-constraint.
-"""
+"""Entry point."""
 
 import sys
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QLabel, QMainWindow
+from PySide6.QtWidgets import QApplication
 
 from app.animation import fade_in_window
+from app.main_window import APP_NAME, MainWindow
 from app.resources import ICON_THEME_NAME, app_icon
-
-APP_NAME = "SOC Automation Tool"
-
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(app_icon())
-        self.resize(900, 600)
-
-        placeholder = QLabel("Dashboard placeholder — built in Task 4")
-        placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setCentralWidget(placeholder)
+from app.settings_service import SettingsService
 
 
 def main() -> int:
@@ -38,7 +19,8 @@ def main() -> int:
     app.setDesktopFileName(ICON_THEME_NAME)
     app.setWindowIcon(app_icon())
 
-    window = MainWindow()
+    settings_service = SettingsService()
+    window = MainWindow(settings_service=settings_service)
     fade_in_window(window)
 
     return app.exec()

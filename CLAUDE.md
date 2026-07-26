@@ -15,9 +15,10 @@ so a session or machine change never costs the project again.
 | OS | Linux Mint 22.3 "Zena" (Ubuntu 24.04 "noble" base) |
 | Session | X11, Cinnamon (`XDG_CURRENT_DESKTOP=X-Cinnamon`) |
 | Python | 3.12.3, system `/usr/bin/python3` |
-| `python3-venv` / `python3-pip` | **NOT installed** — `python3 -m venv` fails without them |
-| PySide6 | **Not in apt repos on noble** — PyPI/pip only |
+| `python3-venv` / `python3-pip` | Installed during Task 1 follow-up; `.venv/` created at project root |
+| PySide6 | **Not in apt repos on noble** — installed via pip into `.venv` (6.11.1) |
 | PyQt6 | In apt (`6.6.1-2build4`), not installed |
+| `libxcb-cursor0` | **NOT installed** — Qt's `xcb` platform plugin cannot load without it; **no real PySide6 window can open on this X11 session at all** until this is installed. Found during Task 3 (WM_CLASS check crashed with `qt.qpa.plugin: Could not load the Qt platform plugin "xcb"`). `QT_QPA_PLATFORM=offscreen` is unaffected — all headless tests still pass. Fix: `sudo apt install libxcb-cursor0` |
 | `dpkg-deb` | Present |
 | `appimagetool`, `fuse2fs` | Absent |
 
